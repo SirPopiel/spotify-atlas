@@ -1,0 +1,16 @@
+# Personal Spotify archives and direct exports must NEVER enter public git
+*.zip
+!tests/fixtures/*.zip
+Streaming_History_*.json
+StreamingHistory*.json
+endsong*.json
+*spotify*data*.json
+*.csv
+# Build / caches / credentials
+/dist/
+/node_modules/
+/.DS_Store
+.env*
+!.env.example
+*.local
+*.log
