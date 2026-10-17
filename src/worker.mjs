@@ -15,12 +15,13 @@ self.onmessage = async ({data}) => {
       store=new EventStore();
       const artists=['Paper Moons','Copper River','Neon Orchard','Glass Assembly','Velvet Atlas','Static Bloom'];
       events=[];
-      for(let year=2022;year<=2025;year++)for(let month=0;month<12;month++)for(let i=0;i<80;i++) {
-        const artist=artists[(month+Math.floor(i/19)+year)%artists.length];
+      for(let year=2019;year<=2025;year++)for(let month=0;month<12;month++)for(let i=0;i<80;i++) {
+        const retro=year<=2020 && i<10;
+        const artist=retro?'Lost Signals':artists[(month+Math.floor(i/19)+year)%artists.length];
         const day=1+(i%27);const hour=(i*7+month)%24;
         events.push({ts:new Date(Date.UTC(year,month,day,hour,i%60)).toISOString(),
           ms_played:160000 + (i%8)*11000,master_metadata_album_artist_name:artist,
-          master_metadata_track_name:`${artist} — Track ${(i%8)+1}`,master_metadata_album_album_name:`${artist} — Sessions`,
+          master_metadata_track_name:retro?'Faded Frequencies':`${artist} — Track ${(i%8)+1}`,master_metadata_album_album_name:`${artist} — Sessions`,
           skipped:i%9===0,platform:i%3===0?'Android':'iOS',conn_country:i%4===0?'FR':'ES'});
       }
       store.ingest('Streaming_History_Audio_DEMO.json',events,'demo');store.finalize();

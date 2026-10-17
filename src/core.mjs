@@ -1,3 +1,4 @@
+import {abandonedFavorites} from './abandoned.mjs';
 /** Pure Spotify parsing and analytics. No network, DOM, persistence, or personal identifiers. */
 export const HISTORY_FILE = /(?:^|\/)(?:Streaming_History_(?:Audio|Video)[\w-]*|StreamingHistory(?:_music|_podcast)?_?\d*|endsong[_\w-]*)\.json$/i;
 export const limits = Object.freeze({ maxZipBytes: 200 * 1024 ** 2, maxEntryBytes: 160 * 1024 ** 2, maxTotalBytes: 700 * 1024 ** 2, maxFiles: 400, maxRatio: 1200 });
@@ -211,6 +212,7 @@ export function analyze(events, filters = {}, quality = {}) {
   const hasData=Number.isFinite(minTime);
   return {
     filters:{zone,type,metric,threshold,period,start:customStart,end:customEnd},
+    abandoned:abandonedFavorites(events,{minPlays:filters.abandonedMinPlays,years:filters.abandonedYears}),
     quality, count, totalMs, minutes:totalMs/60000, plays, from:hasData?minTime:null,to:hasData?maxTime:null,
     artists:artists.size,tracks:tracks.size,albums:albums.size,activeDays:days.size,
     topArtists:top(artists,metric), topTracks:top(tracks,metric), topAlbums:top(albums,metric),

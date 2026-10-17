@@ -1,4 +1,5 @@
 import {filenameAccepted,limits,toCsv} from './core.mjs';
+import {initAbandoned,abandonedFilters,resetAbandoned,renderAbandoned} from './abandoned-view.mjs';
 
 const $=id=>document.getElementById(id);
 const fmt=new Intl.NumberFormat('en-US');
@@ -11,7 +12,7 @@ $('zoneSelect').querySelector('[value="local"]').textContent=`My time zone (${lo
 const filters=()=>({period:$('periodSelect').value,metric:$('metricSelect').value,
   type:$('typeSelect').value,threshold:Number($('thresholdSelect').value),
   zone:$('zoneSelect').value==='local'?localZone:$('zoneSelect').value,
-  start:$('dateFrom').value,end:$('dateTo').value});
+  start:$('dateFrom').value,end:$('dateTo').value,...abandonedFilters()});
 function h(x){return String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function n(x){return fmt.format(x||0)}
 function pct(x){return x==null?'n/a':`${(100*x).toFixed(1)}%`}
@@ -21,7 +22,7 @@ function monthLabel(key){if(!key)return'—';return monthFmt.format(new Date(`${
 const empty='<div class="no-data">No recorded listening in this selection.</div>';
 function status(s,error=false){elements.status.textContent=s;elements.status.classList.toggle('error',error)}
 function progress(p){elements.progress.hidden=false;elements.bar.style.width=`${Math.round(p)}%`;}
-function clear(){state.worker?.terminate();state.worker=null;state.summary=null;state.loading=false;state.demo=false;elements.dashboard.hidden=true;$('demoBadge').hidden=true;$('clearBtn').hidden=true;elements.fileInput.value='';elements.progress.hidden=true;status('Files stay on your device. Always.');$('dateFrom').value='';$('dateTo').value='';$('periodSelect').value='all';}
+function clear(){state.worker?.terminate();state.worker=null;state.summary=null;state.loading=false;state.demo=false;elements.dashboard.hidden=true;$('demoBadge').hidden=true;$('clearBtn').hidden=true;elements.fileInput.value='';elements.progress.hidden=true;status('Files stay on your device. Always.');$('dateFrom').value='';$('dateTo').value='';$('periodSelect').value='all';resetAbandoned();}
 function makeWorker(){state.worker?.terminate();state.worker=new Worker(new URL('./worker.mjs',import.meta.url),{type:'module'});return state.worker;}
 function waitChunk(worker,id){return new Promise((resolve,reject)=>{
   const onmessage=e=>{if(e.data.type==='chunk-done'&&e.data.id===id){worker.removeEventListener('message',onmessage);resolve(e.data.result)}else if(e.data.type==='error'){worker.removeEventListener('message',onmessage);reject(new Error(e.data.message))}};
@@ -182,7 +183,7 @@ function renderSessions(s){const S=s.sessionSummary;$('sessionKpis').innerHTML=[
 function renderQuality(s){const Q=s.quality;const fields=[['Input files analyzed',Q.files],['Raw history events',Q.raw],['Valid events',Q.accepted],['Rejected events',Q.rejected],['Overlapping duplicates',Q.duplicate],['Music events',Q.music],['Podcast events',Q.podcast],['Audiobook events',Q.audiobook],['Unclassified events',Q.unknown],['Malformed files',Q.malformed],['Extended-format events',Q.extended],['Standard-format events',Q.standard]];
   $('qualityCards').innerHTML=fields.map(([a,b])=>`<div class="panel quality-card"><span class="small-label">${h(a)}</span><strong>${n(b)}</strong></div>`).join('');}
 function render(){const s=state.summary;if(!s)return;elements.dashboard.hidden=false;$('clearBtn').hidden=false;$('demoBadge').hidden=!state.demo;$('dataCoverage').textContent=s.count?`${n(s.count)} recorded listening events · ${date(s.from)} – ${date(s.to)} · ${s.filters.zone} · ${s.filters.type}`:'No events in selected period.';
-  renderOverview(s);renderYears(s);renderMonths(s);renderTable(s,'artists');renderTable(s,'tracks');renderTable(s,'albums');renderPattern(s);renderSessions(s);renderQuality(s);
+  renderOverview(s);renderYears(s);renderMonths(s);renderTable(s,'artists');renderTable(s,'tracks');renderTable(s,'albums');renderAbandoned(s);renderPattern(s);renderSessions(s);renderQuality(s);
   if(state.demo)$('demoBadge').hidden=false;
 }
 function downloadCSV(){if(!state.summary)return;const s=state.summary;
@@ -190,6 +191,7 @@ function downloadCSV(){if(!state.summary)return;const s=state.summary;
   const csv=toCsv(rows,['month','minutes','plays','top_artist','top_artist_minutes','top_track','top_album','artist_share_percent']);
   const blob=new Blob(['\ufeff',csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='spotify-atlas-months.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),500);}
 
+initAbandoned(update);
 $('demoBtn').addEventListener('click',()=>demo());$('clearBtn').addEventListener('click',clear);
 elements.fileInput.addEventListener('change',()=>load([...elements.fileInput.files]));
 for(const event of ['dragenter','dragover'])elements.drop.addEventListener(event,e=>{e.preventDefault();elements.drop.classList.add('dragging');});

@@ -21,3 +21,7 @@ npm run dev
 GitHub Pages deployment is configured in `.github/workflows/publish.yml`.
 
 MIT. Not affiliated with Spotify.
+
+## Abandoned favorites
+
+Find songs with at least 30 historical plays (30 seconds each) and no recorded listening in four years. Adjust the thresholds, search tracks, open them on Spotify, or export CSV. Uses the full uploaded history, dated relative to the last event in the archive.

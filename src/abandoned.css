@@ -1,0 +1,13 @@
+.abandoned-note{color:#8da99a;font-size:13px;line-height:1.6;margin:0 0 16px;max-width:880px}
+.abandoned-controls{padding:16px;display:flex;flex-wrap:wrap;align-items:end;gap:14px;margin-bottom:17px}
+.abandoned-controls label{display:flex;flex-direction:column;gap:7px;min-width:140px;flex:1 1 150px;color:#8ca197;font-size:11px;font-weight:800}
+.abandoned-controls select,.abandoned-controls input{width:100%;min-height:40px;border:1px solid #34453c;border-radius:8px;background:#1a241f;color:#e2f2e3;padding:8px;font-size:13px}
+.abandoned-controls .abandoned-search-label{flex:2 1 225px}
+.abandoned-controls .abandoned-export{margin:0;min-height:40px;white-space:nowrap}
+.abandoned-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:0 0 16px}
+.abandoned-kpi{padding:18px}.abandoned-kpi small{display:block;color:#8ca197;font-size:11px;text-transform:uppercase}
+.abandoned-kpi strong{display:block;font-size:27px;letter-spacing:-.04em;margin-top:8px}
+#view-abandoned table{min-width:735px}
+#view-abandoned td:last-child a{color:#9afa9d;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:750px){.abandoned-kpis{grid-template-columns:1fr 1fr}.abandoned-controls .abandoned-export{flex:1 1 100%}}
+@media(max-width:430px){.abandoned-kpis{grid-template-columns:1fr}}
